@@ -18,7 +18,7 @@ public:
 	float window_height;
 
 	Image framebuffer;
-
+	Image img;
 	float time;
 
 	//keyboard state

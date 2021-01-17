@@ -25,6 +25,9 @@ void Application::init(void)
 	std::cout << "initiating app..." << std::endl;
 
 	//here add your init stuff
+
+	img.loadTGA("../res/fruits.tga");
+	img.scale(window_width, window_height);
 }
 
 //render one frame
@@ -32,23 +35,70 @@ void Application::render( Image& framebuffer )
 {
 	
 	//clear framebuffer if we want to start from scratch
-	//framebuffer.fill(Color::BLACK);
+	framebuffer.fill(Color::BLACK);
 
 	//here you can add your code to fill the framebuffer
-
-	//fill every pixel of the image with some random data
-	/*for (unsigned int x = 0; x < framebuffer.width; x++)
-	{
-		for (unsigned int y = 0; y < framebuffer.height; y++)
-		{
-			framebuffer.setPixel(x, y, Color(randomValue() * 255, randomValue() * 255, randomValue() * 255)); //random color
-		}
-	}*/
 	Application::framebuffer.drawRectangle(200, 200, 100, 200, Color::RED, false);
 	Application::framebuffer.drawRectangle(500, 500, 150, 20, Color::BLUE, true);
 	Application::framebuffer.drawLine(400, 500, 600, 100, Color::GREEN);
 	Application::framebuffer.drawCircle(400, 300, 50, Color::WHITE, false);
 	Application::framebuffer.drawCircle(600, 100, 100, Color::YELLOW, true);
+
+
+	//tasca 2(a)
+	for (int x = 0; x < framebuffer.width; ++x)
+	{
+		for (int y = 0; y < framebuffer.height; ++y)
+		{
+			float red = 255 * x / (float)framebuffer.width; //red intensitat 255 quan x gran
+			float blue = 255 * (1 - x) / (float)framebuffer.width; //blue intensitat 255 quan x petita (invers)
+			framebuffer.setPixel(x, y, Color(red, 0, blue));
+		}
+	}
+
+
+	//tasca 2(e)
+	for (int x = 0; x < framebuffer.width; ++x)
+	{
+		for (int y = 0; y < framebuffer.height; ++y)
+		{
+			float y_w = y / (float)framebuffer.height; //així operem amb valors de 0 a 1
+			float x_w = x / (float)framebuffer.width;
+			if (y_w > 0.2 * sin(x_w * 6) + 0.5)
+			{
+				float green = 255 * (1 - y) / (float)framebuffer.height;
+				framebuffer.setPixel(x, y, Color(0, green, 0));
+			}
+			else
+			{
+				float green = 255 * (y) / (float)framebuffer.height;
+				framebuffer.setPixel(x, y, Color(0, green, 0));
+			}
+
+
+		}
+	}
+	//fill every pixel of the image with some random data
+	for (unsigned int x = 0; x < framebuffer.width; x++)
+	{
+		for (unsigned int y = 0; y < framebuffer.height; y++)
+		{
+			framebuffer.setPixel(x, y, Color(randomValue() * 255, randomValue() * 255, randomValue() * 255)); //random color
+		}
+	}
+	// Tasca 3(b)
+	for (unsigned int x = 0; x < framebuffer.width; x++)
+	{
+		for (unsigned int y = 0; y < framebuffer.height; y++)
+		{
+			Color pixel = img.getPixel(x, y);
+			pixel.b = 255 - pixel.b;
+			pixel.r = 255 - pixel.r;
+			pixel.g = 255 - pixel.g;
+			framebuffer.setPixel(x, y, pixel);
+		}
+	}
+
 }
 
 //called after render
