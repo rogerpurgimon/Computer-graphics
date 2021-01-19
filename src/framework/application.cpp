@@ -46,9 +46,9 @@ void Application::render( Image& framebuffer )
 
 
 	//tasca 2(a)
-	for (int x = 0; x < framebuffer.width; ++x)
+	for (int x = 0; x < window_width; ++x)
 	{
-		for (int y = 0; y < framebuffer.height; ++y)
+		for (int y = 0; y < window_height; ++y)
 		{
 			float red = 255 * x / (float)framebuffer.width; //red intensitat 255 quan x gran
 			float blue = 255 * (1 - x) / (float)framebuffer.width; //blue intensitat 255 quan x petita (invers)
@@ -58,9 +58,9 @@ void Application::render( Image& framebuffer )
 
 
 	//tasca 2(e)
-	for (int x = 0; x < framebuffer.width; ++x)
+	for (int x = 0; x < window_width; ++x)
 	{
-		for (int y = 0; y < framebuffer.height; ++y)
+		for (int y = 0; y < window_height; ++y)
 		{
 			float y_w = y / (float)framebuffer.height; //així operem amb valors de 0 a 1
 			float x_w = x / (float)framebuffer.width;
@@ -87,9 +87,9 @@ void Application::render( Image& framebuffer )
 		}
 	}
 	// Tasca 3(b)
-	for (unsigned int x = 0; x < framebuffer.width; x++)
+	for (unsigned int x = 0; x < window_width; x++)
 	{
-		for (unsigned int y = 0; y < framebuffer.height; y++)
+		for (unsigned int y = 0; y < window_height; y++)
 		{
 			Color pixel = img.getPixel(x, y);
 			pixel.b = 255 - pixel.b;
@@ -98,7 +98,36 @@ void Application::render( Image& framebuffer )
 			framebuffer.setPixel(x, y, pixel);
 		}
 	}
-
+	
+	// Tasca 3(d)
+	for (unsigned int x = 0; x < window_width; x++)
+	{
+		for (unsigned int y = 0; y < window_height; y++)
+		{
+			Color pixel = img.getPixel(x, y);
+			if (pixel.r + pixel.g + pixel.b > 255*3/2)
+			{
+				pixel.r = 255; pixel.b = 255; pixel.g = 255;
+			}
+			else
+			{
+				pixel.r = 0; pixel.b = 0; pixel.g = 0;
+			}
+			framebuffer.setPixel(x, y, pixel);
+		}
+	}
+	//Tasca 4
+	for (int x = 0; x < window_width; x++)
+	{
+		for (int y = 0; y < window_height; y++)
+		{
+			float theta = PI / 4.;
+			int rot_x =(int) (x+100) *cos(theta) - (y-400) *sin(theta);
+			int rot_y =(int) (x+100) *sin(theta) + (y-400) *cos(theta);
+			framebuffer.setPixel(x, y, img.getPixelSafe(rot_x, rot_y));
+			
+		}
+	}
 }
 
 //called after render
