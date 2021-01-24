@@ -62,12 +62,13 @@ public:
 		int x;
 		int y;
 	};
-	std::vector<pos> particles;
+	std::vector<pos> positions;
+	std::vector<pos> initPositions;
+
 	std::vector<int> rand_radi;
-	std::vector<pos> particles1;
-	std::vector<pos> particles2;
-	std::vector<pos> particles3;
-	std::vector<pos> particles4;
+
+	std::vector<pos> particles;
+	std::vector<pos> initParticles;
 
 	void start();
 };

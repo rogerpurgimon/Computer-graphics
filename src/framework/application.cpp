@@ -19,14 +19,17 @@ Exercises exercise = home;
 
 char ex2Image = 'a';
 char ex3Image = 'b';
-char ex4Image = 'c';
-char ex5Image = 'r';
+char ex4Image = 'a';
+char ex5Image = 'a';
 
 bool first_timeEx2 = true;
 bool first_timeEx3 = true;
 bool first_timeEx4 = true;
 bool first_timeEx5 = true;
+bool ex5init = true;
 
+double t = 0;
+double randY[500], randX[500];
 //double rotEx4 = 0.0;
 
 Application::Application(const char* caption, int width, int height)
@@ -55,16 +58,20 @@ void Application::init(void)
 
 	img.loadTGA("../res/fruits.tga");
 	img.scale(window_width, window_height);
-	//tasca 5a
-	for (int i = 0; i < 100; i++) {
-		pos p = { 50 + (randomValue() * (window_width-100)), 50 + (randomValue() * (window_height-100)) };
-		particles.push_back(p);
-		rand_radi.push_back(randomValue() * 10);
+
+	printf("Window_width: %f   Window_height: %f\n", window_width, window_height);
+
+	for (int i = 0; i < 500; i++) {
+		pos p = { randomValue() * window_width, (randomValue() * window_height) };
+		positions.push_back(p);
+		initPositions.push_back(p);
+		rand_radi.push_back(randomValue() * 5);
 	}
-	//Tasca 5b
-	for (int i = 0; i < 100; i++) {
-		pos p1 = { 100 + randomValue() * (window_width-200), 100 + randomValue() * (window_height-200) };
-		particles1.push_back(p1);
+
+	for (int i = 0; i < 200; i++) {
+		pos p_particle = { 3 * window_width / 8 + randomValue() * window_width / 4, 3 * window_height / 8 + randomValue() * window_height / 4 };
+		particles.push_back(p_particle);
+		initParticles.push_back(p_particle);
 
 	}
 }
@@ -160,8 +167,8 @@ void Application::render(Image& framebuffer)
 		}
 		break;
 	case ex4:
-		//Tasca 4
-		if (ex4Image == 'c') {
+		//Tasca 4(a)
+		if (ex4Image == 'a') {
 			for (int x = 0; x < window_width; x++)
 			{
 				for (int y = 0; y < window_height; y++)
@@ -174,7 +181,9 @@ void Application::render(Image& framebuffer)
 			}
 			
 		}
-		else {
+		else 
+		//Tasca 4(b)
+		{
 			for (int x = 0; x < window_width; x++)
 			{
 				for (int y = 0; y < window_height; y++)
@@ -186,18 +195,38 @@ void Application::render(Image& framebuffer)
 
 		break;
 	case ex5:
-		if (ex5Image == 'r') {
+		//Tasca 5a
+		if (ex5Image == 'a') {
 			
-			for (int i = 0; i < particles.size(); i++)
+			for (int i = 0; i < positions.size(); i++)
 			{
-				Application::framebuffer.drawCircle(particles[i].x, particles[i].y, rand_radi[i], Color(200,200,200), true);
+				if ((positions[i].x > 10) && (positions[i].x < window_width-10)) {
+					Application::framebuffer.drawCircle(positions[i].x, positions[i].y, rand_radi[i], Color(200, 200, 200), true);
+				}
 			}
 		}
+		//Tasca 5b
 		else {
-			for (int i = 0; i < particles.size(); i++)
-			{
-				framebuffer.setPixel(particles1[i].x, particles1[i].y, Color::WHITE);
+			for (int i = 0; i < particles.size(); i++) {
+				
+				int lenx = particles[i].x - window_width / 2;
+				int leny = particles[i].y - window_height / 2;
+				if (abs(lenx) < 200 && abs(leny) < 150) {
+					Color color = Color::PURPLE;
+					Application::framebuffer.drawLine(particles[i].x, particles[i].y, particles[i].x + lenx / 6, particles[i].y + leny / 6, color);
+				}
+				else if (abs(lenx) < 250 && abs(leny) < 200) {
+					Color color = Color::CYAN;
+					Application::framebuffer.drawLine(particles[i].x, particles[i].y, particles[i].x + lenx / 6, particles[i].y + leny / 6, color);
+				}
+				else {
+					Color color = Color::WHITE;
+					Application::framebuffer.drawLine(particles[i].x, particles[i].y, particles[i].x + lenx / 6, particles[i].y + leny / 6, color);
+				}
+				
+				
 			}
+
 		}
 		
 		break;
@@ -210,70 +239,78 @@ void Application::render(Image& framebuffer)
 //called after render
 void Application::update(double seconds_elapsed)
 {
-	//to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
-	if (keystate[SDL_SCANCODE_SPACE]) //if key space is pressed
-	{
-		//...
-	}
-
-	//to read mouse position use mouse_position
 
 	switch (exercise) {
 	case ex5:
-		if (ex5Image == 'r') 
-		{
-			for (int i = 0; i < particles.size(); i++)
-			{
-				particles[i].y -= seconds_elapsed * 100;
-
-				if (particles[i].y < 10) {
-					particles[i].y = window_height - 10;
+		if (ex5Image == 'a') {
+			if (ex5init) {
+				for (int i = 0; i < positions.size(); i++) {
+					randX[i] = randomValue();
+					randY[i] = randomValue();
 				}
-				if (particles[i].x < 10) {
-					particles[i].x = window_width - 10;
+			}
+			ex5init = false;
+
+			t += seconds_elapsed;
+
+			for (int i = 0; i < positions.size(); i++)
+			{
+				positions[i].y -= seconds_elapsed * (double)200 * randY[i];
+
+				positions[i].x = initPositions[i].x + 120 * sin(t) * randX[i];
+
+				if (positions[i].y < 10) {
+					positions[i].y = window_height - 10;
 				}
 			}
 		}
 		else {
-			for (int i = 0; i < particles.size(); i++)
+			for (int i = 0 ; i < particles.size(); i++)
 			{
-				if (particles1[i].x < (window_width / 2) && particles1[i].y < (window_height / 2)) {
-					particles1[i].y -= seconds_elapsed * 100;
-					particles1[i].x -= seconds_elapsed * 100;
+				if (particles[i].x > window_width / 2 && particles[i].y > window_height/2) {
+					float dx = (particles[i].x - window_width / 2) / ((particles[i].x - window_width / 2) + (particles[i].y - window_height / 2));
+					float dy = (particles[i].y - window_height / 2) / ((particles[i].x - window_width / 2) + (particles[i].y - window_height / 2));
+					particles[i].y += seconds_elapsed * 400 * dy;
+					particles[i].x += seconds_elapsed * 400 * dx;
 				}
-				if (particles1[i].x < (window_width / 2) && particles1[i].y >= (window_height / 2)) {
-					particles1[i].y += seconds_elapsed * 100;
-					particles1[i].x -= seconds_elapsed * 100;
+				else if (particles[i].x > window_width / 2 && particles[i].y <= window_height / 2) {
+					float dx = (particles[i].x - window_width / 2) / ((particles[i].x - window_width / 2) + (window_height / 2 - particles[i].y));
+					float dy = (window_height / 2 - particles[i].y) / ((particles[i].x - window_width / 2) + (window_height / 2 - particles[i].y));
+					particles[i].y -= seconds_elapsed * 400 * dy;
+					particles[i].x += seconds_elapsed * 400 * dx;
 				}
-				if (particles1[i].x >= (window_width / 2) && particles1[i].y < (window_height / 2)) {
-					particles1[i].y -= seconds_elapsed * 100;
-					particles1[i].x += seconds_elapsed * 100;
+				else if (particles[i].x <= window_width / 2 && particles[i].y > window_height / 2) {
+					float dx = (window_width / 2 - particles[i].x) / ((window_width / 2 -particles[i].x) + (particles[i].y - window_height / 2));
+					float dy = (particles[i].y - window_height / 2) / ((window_width / 2 - particles[i].x) + (particles[i].y - window_height / 2));
+					particles[i].y += seconds_elapsed * 400 * dy;
+					particles[i].x -= seconds_elapsed * 400 * dx;
 				}
-
-				if (particles1[i].x >= (window_width / 2) && particles1[i].y >= (window_height / 2)) {
-					particles1[i].y += seconds_elapsed * 100;
-					particles1[i].x += seconds_elapsed * 100;
+				else if (particles[i].x <= window_width / 2 && particles[i].y <= window_height / 2) {
+					float dx = (window_width / 2 - particles[i].x) / ((window_width / 2 - particles[i].x) + (window_height / 2 - particles[i].y));
+					float dy = (window_height / 2 - particles[i].y) / ((window_width / 2 - particles[i].x) + (window_height / 2 - particles[i].y));
+					particles[i].y -= seconds_elapsed * 400 * dy;
+					particles[i].x -= seconds_elapsed * 400 * dx;
 				}
-
-				if (particles1[i].y < 10) {
-					particles1[i].y = (window_height/2) - randomValue()*300;
-					particles1[i].x = (window_width / 2) - randomValue()*300;
+				if (particles[i].y < 100 || particles[i].y > window_height - 100)
+				{
+					particles[i].y = initParticles[i].y; particles[i].x = initParticles[i].x;
 				}
-				if (particles1[i].y >= (window_height) - 10) {
-					particles1[i].y = (window_height / 2) - randomValue()*300;
-					particles1[i].x = (window_width / 2) + randomValue()*300;
-				}
-				if (particles1[i].x < 10) {
-					particles1[i].x = (window_width/2) + randomValue()*300;
-					particles1[i].y = (window_height / 2) - randomValue()*300;
-				}
-				if (particles1[i].x >= window_width - 10) {
-					particles1[i].x = (window_width / 2) + randomValue()*300;
-					particles1[i].y = (window_height / 2) + randomValue()*300;
+				else if (particles[i].x < 100|| particles[i].x > window_width - 100)
+				{
+					particles[i].y = initParticles[i].y; particles[i].x = initParticles[i].x;
 				}
 			}
 		}
 	}
+
+	//to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
+	if (keystate[SDL_SCANCODE_SPACE]) //if key space is pressed
+	{
+		printf("seconds_elapsed: %f\n", seconds_elapsed);
+		//...
+	}
+
+	//to read mouse position use mouse_position
 }
 
 
@@ -296,19 +333,19 @@ void Application::onKeyDown(SDL_KeyboardEvent event)
 	case SDL_SCANCODE_3:
 		exercise = ex3;
 		std::cout << "\n\nTASK 3: Code 2 Image filters" << std::endl;
-		if (first_timeEx3) printf("\nDrawing proposed image (b)...\n(Click to change)\n");
+		if (first_timeEx3) printf("\nDrawing proposed image filter INVERT (b)...\n(Click to change)\n");
 		first_timeEx3 = false;
 		break;
 	case SDL_SCANCODE_4:
 		exercise = ex4;
 		std::cout << "\n\nTASK 4: Warping an image" << std::endl;
-		if (first_timeEx4) printf("\nDrawing proposed image (c)...\n(Click to change)\n");
+		if (first_timeEx4) printf("\nDrawing 45 degrees ROTATED image (a)...\n(Click to change)\n");
 		first_timeEx4 = false;
 		break;
 	case SDL_SCANCODE_5:
 		exercise = ex5;
 		std::cout << "\n\nTASK 5: Create one particles animation" << std::endl;
-		if (first_timeEx5) printf("\nDrawing proposed image (r)...\n(Click to change)\n");
+		if (first_timeEx5) printf("\nDrawing SNOW animation (a)...\n(Click to change)\n");
 		first_timeEx5 = false;
 		break;
 	case SDL_SCANCODE_6:
@@ -353,31 +390,31 @@ void Application::onMouseButtonDown( SDL_MouseButtonEvent event )
 		case ex3:
 			if (ex3Image == 'b') {
 				ex3Image = 'd';
-				printf("\nDrawing proposed image (d)...\n(Click to change)\n");
+				printf("\nDrawing proposed image filter THRESHOLD (d)...\n(Click to change)\n");
 			}
 			else {
 				ex3Image = 'b';
-				printf("\nDrawing proposed image (b)...\n(Click to change)\n");
+				printf("\nDrawing proposed image filter INVERT (b)...\n(Click to change)\n");
 			}
 			break;
 		case ex4:
-			if (ex4Image == 'c') {
-				ex4Image = 'e';
-				printf("\nDrawing proposed image (z)...\n(Click to change)\n");
+			if (ex4Image == 'a') {
+				ex4Image = 'b';
+				printf("\nDrawing 10 times SCALED image (b)...\n(Click to change)\n");
 			}
 			else {
-				ex4Image = 'c';
-				printf("\nDrawing proposed image (c)...\n(Click to change)\n");
+				ex4Image = 'a';
+				printf("\nDrawing 45 degrees ROTATED image (a)...\n(Click to change)\n");
 			}
 			break;
 		case ex5:
-			if (ex5Image == 'r') {
-				ex5Image = 's';
-				printf("\nDrawing proposed image (s)...\n(Click to change)\n");
+			if (ex5Image == 'a') {
+				ex5Image = 'b';
+				printf("\nDrawing STARFIELD animation (b)...\n(Click to change)\n");
 			}
 			else {
-				ex5Image = 'r';
-				printf("\nDrawing proposed image (r)...\n(Click to change)\n");
+				ex5Image = 'a';
+				printf("\nDrawing SNOW animation (a)...\n(Click to change)\n");
 			}
 			break;
 		case ex6:
