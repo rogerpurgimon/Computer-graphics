@@ -251,7 +251,7 @@ void forEachPixel(Image& img, const Image& img2, F f) {
 //NOVES FUNCIONS: RECTANGLE, CERCLE, LÍNIA
 void Image::drawRectangle(int x, int y, int w, int h, Color color, bool fill)
 {
-	int start_x = x - h / 2;
+	int start_x = x - w / 2;
 	int start_y = y - h / 2;
 
 	if (fill == true) {
@@ -281,7 +281,7 @@ void Image::drawCircle(int x, int y, int r, Color color, bool fill)
 		for (int y = centre_y - r; y < centre_y + r+1; y++) {
 			for (int x = centre_x - r; x < centre_x + r+1; x++) {
 				int circle_eq = pow(x - centre_x , 2) + pow(y - centre_y, 2) - pow(r, 2);
-				if (circle_eq >= -r/2 && circle_eq <= r/2) {
+				if (circle_eq >= -r && circle_eq <= r) {
 					setPixel(x, y, color);
 				}
 			}
