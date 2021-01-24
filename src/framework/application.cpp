@@ -211,11 +211,11 @@ void Application::render(Image& framebuffer)
 				
 				int lenx = particles[i].x - window_width / 2;
 				int leny = particles[i].y - window_height / 2;
-				if (abs(lenx) < 200 && abs(leny) < 150) {
+				if (abs(lenx) < 225 && abs(leny) < 150) {
 					Color color = Color::PURPLE;
 					Application::framebuffer.drawLine(particles[i].x, particles[i].y, particles[i].x + lenx / 6, particles[i].y + leny / 6, color);
 				}
-				else if (abs(lenx) < 250 && abs(leny) < 200) {
+				else if (abs(lenx) < 250 && abs(leny) < 175) {
 					Color color = Color::CYAN;
 					Application::framebuffer.drawLine(particles[i].x, particles[i].y, particles[i].x + lenx / 6, particles[i].y + leny / 6, color);
 				}
@@ -291,11 +291,11 @@ void Application::update(double seconds_elapsed)
 					particles[i].y -= seconds_elapsed * 400 * dy;
 					particles[i].x -= seconds_elapsed * 400 * dx;
 				}
-				if (particles[i].y < 100 || particles[i].y > window_height - 100)
+				if (particles[i].y < 50 || particles[i].y > window_height - 50)
 				{
 					particles[i].y = initParticles[i].y; particles[i].x = initParticles[i].x;
 				}
-				else if (particles[i].x < 100|| particles[i].x > window_width - 100)
+				else if (particles[i].x < 75|| particles[i].x > window_width - 75)
 				{
 					particles[i].y = initParticles[i].y; particles[i].x = initParticles[i].x;
 				}
