@@ -18,7 +18,11 @@ public:
 	float window_height;
 
 	Image framebuffer;
-	Image img;
+	Image imgFruits;
+	Image imgEx6_novaPag;
+	Image imgEx6_guardar;
+	Image canvas;
+
 	float time;
 
 	//keyboard state
@@ -69,6 +73,14 @@ public:
 
 	std::vector<pos> particles;
 	std::vector<pos> initParticles;
+
+	struct pencil {
+		int x;
+		int y;
+		Color c;
+	};
+	pencil pen;
+	std::vector<pencil> tr;
 
 	void start();
 };

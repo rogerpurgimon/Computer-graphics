@@ -4,6 +4,9 @@
 
 
 //application state
+
+Color pixel;
+
 Vector2 start_pos;
 Vector2 end_pos;
 
@@ -30,6 +33,12 @@ bool ex5init = true;
 
 double t = 0;
 double randY[500], randX[500];
+
+short unsigned int ex6Color = BLACK;
+Color ex6Color_ = Color::BLACK;
+
+bool draw = false;
+
 //double rotEx4 = 0.0;
 
 Application::Application(const char* caption, int width, int height)
@@ -56,18 +65,27 @@ void Application::init(void)
 
 	//here add your init stuff
 
-	img.loadTGA("../res/fruits.tga");
-	img.scale(window_width, window_height);
+	imgFruits.loadTGA("../res/fruits.tga");
+	imgFruits.scale(window_width, window_height);
+
+	imgEx6_guardar.loadTGA("../res/toolbar.tga");
+	//	imgEx6_guardar.scale(50, 50);
+
+	imgEx6_novaPag.loadTGA("../res/toolbar.tga");
+	//imgEx6_novaPag.scale(50, 50);
+
+
 
 	printf("Window_width: %f   Window_height: %f\n", window_width, window_height);
 
+	//init tasca 5a
 	for (int i = 0; i < 500; i++) {
 		pos p = { randomValue() * window_width, (randomValue() * window_height) };
 		positions.push_back(p);
 		initPositions.push_back(p);
 		rand_radi.push_back(randomValue() * 5);
 	}
-
+	//init tasca 5b
 	for (int i = 0; i < 200; i++) {
 		pos p_particle = { 3 * window_width / 8 + randomValue() * window_width / 4, 3 * window_height / 8 + randomValue() * window_height / 4 };
 		particles.push_back(p_particle);
@@ -138,7 +156,7 @@ void Application::render(Image& framebuffer)
 			{
 				for (unsigned int y = 0; y < window_height; y++)
 				{
-					Color pixel = img.getPixel(x, y);
+					pixel = imgFruits.getPixel(x, y);
 					pixel.b = 255 - pixel.b;
 					pixel.r = 255 - pixel.r;
 					pixel.g = 255 - pixel.g;
@@ -152,7 +170,7 @@ void Application::render(Image& framebuffer)
 			{
 				for (unsigned int y = 0; y < window_height; y++)
 				{
-					Color pixel = img.getPixel(x, y);
+					pixel = imgFruits.getPixel(x, y);
 					if (pixel.r + pixel.g + pixel.b > 255 * 3 / 2)
 					{
 						pixel.r = 255; pixel.b = 255; pixel.g = 255;
@@ -176,7 +194,7 @@ void Application::render(Image& framebuffer)
 					float theta = PI / 4.;  //float theta = rotEx4 * PI / 4.;
 					int rot_x = (int)(x + 100) * cos(theta) - (y - 400) * sin(theta);
 					int rot_y = (int)(x + 100) * sin(theta) + (y - 400) * cos(theta);
-					framebuffer.setPixel(x, y, img.getPixelSafe(rot_x, rot_y));
+					framebuffer.setPixel(x, y, imgFruits.getPixelSafe(rot_x, rot_y));
 				}
 			}
 			
@@ -188,7 +206,7 @@ void Application::render(Image& framebuffer)
 			{
 				for (int y = 0; y < window_height; y++)
 				{
-					framebuffer.setPixel(x,y,img.getPixelSafe(x*0.5,y*0.5));
+					framebuffer.setPixel(x,y,imgFruits.getPixelSafe(x*0.5,y*0.5));
 				}
 			}
 		}
@@ -222,16 +240,89 @@ void Application::render(Image& framebuffer)
 				else {
 					Color color = Color::WHITE;
 					Application::framebuffer.drawLine(particles[i].x, particles[i].y, particles[i].x + lenx / 6, particles[i].y + leny / 6, color);
-				}
-				
-				
+				}				
 			}
 
 		}
 		
 		break;
 	case ex6:
-		break;
+		framebuffer.fill(Color::GRAY);
+
+		Application::framebuffer.drawRectangle(window_width / 2, window_height / 2 - 30, window_width - 20, window_height - 80, Color::WHITE, true);
+
+		switch (ex6Color) {
+		case BLACK:
+			Application::framebuffer.drawRectangle(3 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case RED:
+			Application::framebuffer.drawRectangle(4 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case GREEN:
+			Application::framebuffer.drawRectangle(5 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case BLUE:
+			Application::framebuffer.drawRectangle(6 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case YELLOW:
+			Application::framebuffer.drawRectangle(7 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case PURPLE:
+			Application::framebuffer.drawRectangle(8 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case CYAN:
+			Application::framebuffer.drawRectangle(9 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		case WHITE:
+			Application::framebuffer.drawRectangle(10 * window_width / 13, window_height - 35, window_width / 25 + window_width / 80, window_width / 25 + window_width / 80, Color::WHITE, true);
+			break;
+		}
+
+		
+		Application::framebuffer.drawRectangle(3 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::BLACK, true);
+		Application::framebuffer.drawRectangle(4 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::RED, true);
+		Application::framebuffer.drawRectangle(5 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::GREEN, true);
+		Application::framebuffer.drawRectangle(6 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::BLUE, true);
+		Application::framebuffer.drawRectangle(7 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::YELLOW, true);
+		Application::framebuffer.drawRectangle(8 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::PURPLE, true);
+		Application::framebuffer.drawRectangle(9 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::CYAN, true);
+		Application::framebuffer.drawRectangle(10 * window_width / 13, window_height - 35, window_width / 25, window_width / 25, Color::WHITE, true);
+
+		for (unsigned int x = 11; x < 35; x++)
+		{
+			for (unsigned int y = 9; y < 42; y++)
+			{
+				pixel = imgEx6_novaPag.getPixel(x, y);
+				/*pixel.b = pixel.b;
+				pixel.r = pixel.r;
+				pixel.g = pixel.g;*/
+				framebuffer.setPixel(x + window_width / 13 - 20, y + window_height - 60, pixel);
+			}
+		}
+		for (unsigned int x = 60; x < 92; x++)
+		{
+			for (unsigned int y = 9; y < 41; y++)
+			{
+				pixel = imgEx6_guardar.getPixel(x, y);
+				/*pixel.b = pixel.b;
+				pixel.r = pixel.r;
+				pixel.g = pixel.g;*/
+				framebuffer.setPixel(x + window_width / 13 - 20, y + window_height - 60, pixel);
+			}
+		}
+
+		//draw
+		for (int i = 0; i < tr.size(); i++)
+		{
+			framebuffer.drawCircle(tr[i].x, tr[i].y, 5, tr[i].c, true);
+		}
+
+		if (15 < mouse_position.y && mouse_position.y<window_height-75 && 15< mouse_position.x && mouse_position.x < window_width-15) {
+			framebuffer.drawCircle(mouse_position.x, mouse_position.y, 5, ex6Color_, true);
+			
+			
+		}
+		
 	}
 }
 
@@ -418,6 +509,116 @@ void Application::onMouseButtonDown( SDL_MouseButtonEvent event )
 			}
 			break;
 		case ex6:
+			//3 * window_width / 13, window_height - 35, window_width / 25, window_width / 25
+			if ((mouse_position.x > 3 * window_width / 13 - window_width / 50) && (mouse_position.x < 3 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = BLACK;
+				ex6Color_ = Color::BLACK;
+				draw = true;
+			}
+			else if ((mouse_position.x > 4 * window_width / 13 - window_width / 50) && (mouse_position.x < 4 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = RED;
+				ex6Color_ = Color::RED;
+
+			}
+			else if ((mouse_position.x > 5 * window_width / 13 - window_width / 50) && (mouse_position.x < 5 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = GREEN;
+				ex6Color_ = Color::GREEN;
+
+			}
+			else if ((mouse_position.x > 6 * window_width / 13 - window_width / 50) && (mouse_position.x < 6 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = BLUE;
+				ex6Color_ = Color::BLUE;
+
+			}
+			else if ((mouse_position.x > 7 * window_width / 13 - window_width / 50) && (mouse_position.x < 7 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = YELLOW;
+				ex6Color_ = Color::YELLOW;
+
+			}
+			else if ((mouse_position.x > 8 * window_width / 13 - window_width / 50) && (mouse_position.x < 8 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = PURPLE;
+				ex6Color_ = Color::PURPLE;
+
+			}
+			else if ((mouse_position.x > 9 * window_width / 13 - window_width / 50) && (mouse_position.x < 9 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = CYAN;
+				ex6Color_ = Color::CYAN;
+
+			}
+			else if ((mouse_position.x > 10 * window_width / 13 - window_width / 50) && (mouse_position.x < 10 * window_width / 13 + window_width / 50)
+				&& (mouse_position.y > window_height - 50) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				ex6Color = WHITE;
+				ex6Color_ = Color::WHITE;
+			}
+			//NewPage
+			else if ((mouse_position.x > 51) && (mouse_position.x < 77)
+				&& (mouse_position.y > window_height - 51) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				printf("New Page...\n");
+
+			}
+
+			//Save
+			else if ((mouse_position.x > 102) && (mouse_position.x < 132)
+				&& (mouse_position.y > window_height - 51) && (mouse_position.y < window_height - 50 + window_width / 25)) {
+				printf("Saving drawing as TGA image...\n");
+				
+			}
+
+			//Draw
+			else if ((mouse_position.x > 10 && mouse_position.x < window_width - 10)
+				&& (mouse_position.y > 10 && mouse_position.y < window_height - 70)) {
+				switch (ex6Color) {
+					case BLACK:
+						printf("Drawing with color BLACK\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case RED:
+						printf("Drawing with color RED\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case GREEN:
+						printf("Drawing with color GREEN\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case BLUE:
+						printf("Drawing with color BLUE\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case YELLOW:
+						printf("Drawing with color YELLOW\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case PURPLE:
+						printf("Drawing with color PURPLE\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case CYAN:
+						printf("Drawing with color CYAN\n");
+						pen = { (int) mouse_position.x, (int) mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+					case WHITE:
+						printf("Drawing with color WHITE\n");
+						pen = { (int)mouse_position.x, (int)mouse_position.y, ex6Color_ };
+						tr.push_back(pen);
+						break;
+				}
+
+			}
+				
 			break;
 		}
 		//if you read mouse position from the event, careful, Y is reversed, use mouse_position instead
@@ -425,13 +626,14 @@ void Application::onMouseButtonDown( SDL_MouseButtonEvent event )
 
 	if (event.button == SDL_BUTTON_RIGHT) //left mouse pressed
 	{
-		if (exercise == ex1)
+		if (exercise == ex1) {
 			start_pos = mouse_position;
 			printf("\nRectangle %d --> Start pos: ", numRectangles);
 			printf("(%d, ", (int)start_pos.x);
 			printf("%d)\n", (int)start_pos.y);
 			rectangles[numRectangles] = start_pos;
-			numRectangles++; //
+			numRectangles++; 
+		}
 	}
 
 	if (event.button == SDL_BUTTON_MIDDLE) //left mouse pressed
@@ -457,6 +659,7 @@ void Application::onMouseButtonUp( SDL_MouseButtonEvent event )
 				printf("%d)\n", (int)end_pos.y);
 				lines[numLines][1] = end_pos;
 				numLines++;
+				break;
 			case ex2:
 				break;
 			case ex3:
@@ -466,6 +669,7 @@ void Application::onMouseButtonUp( SDL_MouseButtonEvent event )
 			case ex5:
 				break;
 			case ex6:
+				draw = false;
 				break;
 		}
 	}

@@ -14,6 +14,17 @@
 #endif
 #define DEG2RAD 0.0174532925
 
+//ex6 Color Variables
+constexpr auto BLACK = 0;
+constexpr auto WHITE = 1;
+constexpr auto GRAY = 2;
+constexpr auto RED = 3;
+constexpr auto GREEN = 4;
+constexpr auto BLUE = 5;
+constexpr auto YELLOW = 6;
+constexpr auto CYAN = 7;
+constexpr auto PURPLE = 8;
+
 //clamp a value 'x' between 'a' and 'b'
 inline float clamp(float x, float a, float b) { return x < a ? a : (x > b ? b : x); }
 inline unsigned int clamp(unsigned int x, unsigned int a, unsigned int b) { return x < a ? a : (x > b ? b : x); }
