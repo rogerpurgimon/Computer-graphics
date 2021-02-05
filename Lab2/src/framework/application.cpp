@@ -50,7 +50,6 @@ void Application::init(void)
 void Application::render( Image& framebuffer )
 {
 	//clear framebuffer if we want to start from scratch
-	framebuffer.fill(Color::BLACK);
 
 	switch (exercise)
 	{

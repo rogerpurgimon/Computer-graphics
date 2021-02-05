@@ -271,10 +271,9 @@ int Image::sgn(int x)
 	}
 }
 
-void Image::Bresenham(int x0, int y0, int x1, int y1, Color c)
+void Image::BresenhamHoritzontalYpos(int x0, int y0, int x1, int y1, Color c) // 1r i 5è octant
 {
 	int dx, dy, inc_E, inc_NE, d, x, y;
-
 	dx = x1 - x0;
 	dy = y1 - y0;
 	inc_E = 2 * dy;
@@ -282,7 +281,8 @@ void Image::Bresenham(int x0, int y0, int x1, int y1, Color c)
 	d = 2 * dy - dx;
 	x = x0;
 	y = y0;
-	setPixel(x, y, c);
+	setPixel(x, y, c);	
+
 	while (x < x1)
 	{
 		if (d <= 0) { //Choose E
@@ -298,6 +298,120 @@ void Image::Bresenham(int x0, int y0, int x1, int y1, Color c)
 	}
 }
 
+void Image::BresenhamHoritzontalYneg(int x0, int y0, int x1, int y1, Color c) // 8è i 4t octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	inc_E = 2 * -dy;
+	inc_NE = 2 * (-dy - dx);
+	d = 2 * -dy - dx;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);
+
+	while (x < x1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			x = x + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x + 1;
+			y = y - 1;
+		}
+		setPixel(x, y, c);
+	}
+}
+
+void Image::BresenhamVerticalXpos(int x0, int y0, int x1, int y1, Color c) //2n i 6è octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	inc_E = 2 * dx;
+	inc_NE = 2 * (dx - dy);
+	d = 2 * dx - dy;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);
+
+	while (y < y1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			y = y + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x + 1;
+			y = y + 1;
+		}
+		setPixel(x, y, c);
+	}
+}
+
+void Image::BresenhamVerticalXneg(int x0, int y0, int x1, int y1, Color c) //3r i 7è octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	inc_E = 2 * -dx;
+	inc_NE = 2 * (-dx - dy);
+	d = 2 * -dx - dy;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);
+
+	while (y < y1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			y = y + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x - 1;
+			y = y + 1;
+		}
+		setPixel(x, y, c);
+	}
+}
+
+void Image::Bresenham(int x0, int y0, int x1, int y1, Color c)
+{
+	if (abs(y1 - y0) < abs(x1 - x0)) //octants horitzontals(1,4,5,8)
+	{
+		if (x0 <= x1 && y0 <= y1) { 
+			BresenhamHoritzontalYpos(x0, y0, x1, y1, c); //1r octant
+		}
+		else if (x0 > x1 && y0 > y1) { 
+			BresenhamHoritzontalYpos(x1, y1, x0, y0, c); //5è octant
+		}
+		else if (x0 <= x1 && y0 > y1) {
+			BresenhamHoritzontalYneg(x0, y0, x1, y1, c); //8è octant
+		}
+		else {
+			BresenhamHoritzontalYneg(x1, y1, x0, y0, c); //4t octant
+		}
+		
+	}
+	else {
+		if (x0 <= x1 && y0 <= y1) {
+			BresenhamVerticalXpos(x0, y0, x1, y1, c); //2n octant
+		}
+		else if (x0 > x1 && y0 > y1) {
+			BresenhamVerticalXpos(x1, y1, x0, y0, c); //6è octant
+		}
+		else if (x0 <= x1 && y0 > y1) {
+			BresenhamVerticalXneg(x1, y1, x0, y0, c); //7è octant
+		}
+		else {
+			BresenhamVerticalXneg(x0, y0, x1, y1, c); //3r octant
+		}
+	}
+}
 
 #ifndef IGNORE_LAMBDAS
 

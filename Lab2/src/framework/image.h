@@ -89,6 +89,10 @@ public:
 
 	void DDA(int x0, int y0, int x1, int y1, Color c);
 	int sgn(int x);
+	void BresenhamHoritzontalYpos(int x0, int y0, int x1, int y1, Color c);
+	void BresenhamHoritzontalYneg(int x0, int y0, int x1, int y1, Color c);
+	void BresenhamVerticalXpos(int x0, int y0, int x1, int y1, Color c);
+	void BresenhamVerticalXneg(int x0, int y0, int x1, int y1, Color c);
 	void Bresenham(int x0, int y0, int x1, int y1, Color c);
 };
 
