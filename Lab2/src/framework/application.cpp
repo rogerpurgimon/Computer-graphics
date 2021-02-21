@@ -14,11 +14,26 @@ Vector2 end1_pos;
 Vector2 start2_pos;
 Vector2 end2_pos;
 
+Vector2 start3_pos;
+Vector2 end3_pos;
+
 Vector2 lines1[50][2];
 int numLines1 = 0;
 
 Vector2 lines2[50][2];
 int numLines2 = 0;
+
+Vector2 circles[100][2];
+int numCircles = 0;
+bool filledCircle = false;
+
+Vector2 triangles[100][4];
+int numTriangles = 0;
+bool filledTriangle = false;
+Vector2 point1;
+Vector2 point2;
+Vector2 point3;
+
 
 
 Application::Application(const char* caption, int width, int height)
@@ -44,13 +59,18 @@ void Application::init(void)
 	std::cout << "initiating app..." << std::endl;
 
 	//here add your init stuff
+	std::vector<Image::sCelda> table;
+	table.resize(this->window_height);
+	for (int i = 0; i < table.size(); i++) {
+		table[i].minx = 100000;
+		table[i].maxx = -100000;
+	}
 }
 
 //render one frame
 void Application::render( Image& framebuffer )
 {
 	//clear framebuffer if we want to start from scratch
-
 	switch (exercise)
 	{
 	case ex1:
@@ -61,7 +81,19 @@ void Application::render( Image& framebuffer )
 	case ex2:
 		//tasca 2
 		for (int i = 0; i < numLines2; i++) {
-			Application::framebuffer.Bresenham(lines2[i][0].x, lines2[i][0].y, lines2[i][1].x, lines2[i][1].y, Color::PURPLE);
+			Application::framebuffer.BresenhamLine(lines2[i][0].x, lines2[i][0].y, lines2[i][1].x, lines2[i][1].y, Color::PURPLE);
+		}
+	case ex3: 
+		//tasca 3
+		for (int i = 0; i < numCircles; i++) {
+			if (circles[i][1].y) filledCircle = true; else filledCircle = false;
+			Application::framebuffer.BresenhamCircle(circles[i][0].x, circles[i][0].y, circles[i][1].x, Color::WHITE, filledCircle);
+		}
+	case ex4:
+		//tasca 4(a)
+		for (int i = 0; i < numTriangles; i++) {
+			if (triangles[i][3].x) filledTriangle = true; else filledTriangle = false;
+			Application::framebuffer.drawTriangle(triangles[i][0].x, triangles[i][0].y, triangles[i][1].x, triangles[i][1].y, triangles[i][2].x, triangles[i][2].y, Color::BLUE, filledTriangle);
 		}
 	}
 }
@@ -92,6 +124,17 @@ void Application::onKeyDown( SDL_KeyboardEvent event )
 		exercise = ex2;
 		std::cout << "\n\nTASK 2: Bresenham Lines" << std::endl;
 		break;
+	case SDL_SCANCODE_3:
+		exercise = ex3;
+		std::cout << "\n\nTASK 3: Circles" << std::endl;
+		break;
+	case SDL_SCANCODE_4:
+		exercise = ex4;
+		std::cout << "\n\nTASK 4: Triangles" << std::endl;
+		break;
+	case SDL_SCANCODE_ESCAPE:
+		exit(0);
+		break; //ESC key, kill the app
 	}
 }
 
@@ -123,13 +166,78 @@ void Application::onMouseButtonDown( SDL_MouseButtonEvent event )
 			lines2[numLines2][0] = start2_pos;
 			break;
 		case ex3:
+			start3_pos = mouse_position;
+			printf("\nCircle %d --> Start pos: ", numCircles);
+			printf("(%d, ", (int)start3_pos.x);
+			printf("%d)", (int)start3_pos.y);
+			circles[numCircles][0] = start3_pos;
 			break;
 		case ex4:
+			if (triangles[numTriangles][0].x == NULL) {
+				triangles[numTriangles][3].x = 0; //we use this to know if triangle is fileld
+				point1 = mouse_position;
+				printf("\nTriangle %d --> First point: ", numTriangles);
+				printf("(%d, ", (int)point1.x);
+				printf("%d) ", (int)point1.y);
+				triangles[numTriangles][0] = point1;
+			}
+			else if (triangles[numTriangles][1].x == NULL && triangles[numTriangles][0].x != NULL) {
+				point2 = mouse_position;
+				printf("\nTriangle %d --> Second point: ", numTriangles);
+				printf("(%d, ", (int)point2.x);
+				printf("%d) ", (int)point2.y);
+				triangles[numTriangles][1] = point2;
+			}
+			else {
+				point3 = mouse_position;
+				printf("\nTriangle %d --> Third point: ", numTriangles);
+				printf("(%d, ", (int)point3.x);
+				printf("%d) ", (int)point3.y);
+				triangles[numTriangles][2] = point3;
+				numTriangles++;
+			}
 			break;
+			
 		case ex5:
 			break;
 		}
-		
+	} 
+	else if (event.button == SDL_BUTTON_RIGHT) //left mouse pressed
+	{
+		switch (exercise) {
+		case ex3:
+			start3_pos = mouse_position;
+			printf("\nFilled circle %d --> Start pos: ", numCircles);
+			printf("(%d, ", (int)start3_pos.x);
+			printf("%d)", (int)start3_pos.y);
+			circles[numCircles][0] = start3_pos;
+			break;
+		case ex4:
+			if (triangles[numTriangles][0].x == NULL) {
+				triangles[numTriangles][3].x = 1; //we use this to know if triangle is fileld
+				point1 = mouse_position;
+				printf("\nTriangle %d --> First point: ", numTriangles);
+				printf("(%d, ", (int)point1.x);
+				printf("%d) ", (int)point1.y);
+				triangles[numTriangles][0] = point1;
+			}
+			else if (triangles[numTriangles][1].x == NULL && triangles[numTriangles][0].x != NULL) {
+				point2 = mouse_position;
+				printf("\nTriangle %d --> Second point: ", numTriangles);
+				printf("(%d, ", (int)point2.x);
+				printf("%d) ", (int)point2.y);
+				triangles[numTriangles][1] = point2;
+			}
+			else {
+				point3 = mouse_position;
+				printf("\nTriangle %d --> Third point: ", numTriangles);
+				printf("(%d, ", (int)point3.x);
+				printf("%d) ", (int)point3.y);
+				triangles[numTriangles][2] = point3;
+				numTriangles++;
+			}
+		}
+	
 	}
 }
 
@@ -155,10 +263,36 @@ void Application::onMouseButtonUp( SDL_MouseButtonEvent event )
 			numLines2++;
 			break;
 		case ex3:
-			break;
+		{
+			end3_pos = mouse_position;
+			Vector2 v = end3_pos - start3_pos;
+			Vector2 r_0;
+			r_0.x = sqrt(pow(v.x, 2) + pow(v.y, 2)); r_0.y = 0; //we use r_0.y to indicate if the circle must be filled or not (0-> Circle not filled)
+			circles[numCircles][1] = r_0;
+			printf(" Radius: ");
+			printf("%d\n", (int)r_0.x);
+			numCircles++;
+			break; 
+		}
 		case ex4:
+			
 			break;
 		case ex5:
+			break;
+		}
+	}
+	else if (event.button == SDL_BUTTON_RIGHT) //left mouse pressed
+	{
+		switch (exercise) {
+		case ex3:
+			end3_pos = mouse_position;
+			Vector2 v = end3_pos - start3_pos;
+			Vector2 r_0;
+			r_0.x = sqrt(pow(v.x, 2) + pow(v.y, 2)); r_0.y = 1; //we use r_0.y to indicate if the circle must be filled or not (1 -> Circle filled)
+			circles[numCircles][1] = r_0;
+			printf(" Radius: ");
+			printf("%d\n", (int)r_0.x);
+			numCircles++;
 			break;
 		}
 	}

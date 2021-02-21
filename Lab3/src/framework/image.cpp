@@ -87,7 +87,7 @@ Image Image::getArea(unsigned int start_x, unsigned int start_y, unsigned int wi
 {
 	Image result(width, height);
 	for(unsigned int x = 0; x < width; ++x)
-		for(unsigned int y = 0; y < height; ++y)
+		for(unsigned int y = 0; y < height; ++x)
 		{
 			if( (x + start_x) < this->width && (y + start_y) < this->height) 
 				result.setPixel( x, y, getPixel(x + start_x,y + start_y) );
@@ -237,44 +237,71 @@ bool Image::saveTGA(const char* filename)
 	return true;
 }
 
-void Image::DDA(int x1, int y1, int x2, int y2, Color c)
+
+FloatImage::FloatImage(unsigned int width, unsigned int height)
 {
-	float d, x, y;
-	float dx = (x2 - x1);
-	float dy = (y2 - y1);
-	if (fabs(dx) >= fabs(dy))
-		d = fabs(dx);
-	else
-		d = fabs(dy);
-	float vx = dx / d;
-	float vy = dy / d;
-	x = x1 + sgn(x1) * 0.5;
-	y = y1 + sgn(y1) * 0.5;
-	for (int i = 0; i <= d; i++)
+	this->width = width;
+	this->height = height;
+	pixels = new float[width*height];
+	memset(pixels, 0, width * height * sizeof(float));
+}
+
+//copy constructor
+FloatImage::FloatImage(const FloatImage& c) {
+	pixels = NULL;
+
+	width = c.width;
+	height = c.height;
+	if (c.pixels)
 	{
-		setPixel(round(x), round(y), c);
-		x = x + vx;
-		y = y + vy;
+		pixels = new float[width*height];
+		memcpy(pixels, c.pixels, width*height * sizeof(float));
 	}
 }
 
-//function sgn returns -1 if the value is negative, otherwise +1
-int Image::sgn(int x)
+//assign operator
+FloatImage& FloatImage::operator = (const FloatImage& c)
 {
-	if (x < 0)
+	if (pixels) delete pixels;
+	pixels = NULL;
+
+	width = c.width;
+	height = c.height;
+	if (c.pixels)
 	{
-		return -1;
+		pixels = new float[width*height * sizeof(float)];
+		memcpy(pixels, c.pixels, width*height * sizeof(float));
 	}
-	else
-	{
-		return 1;
-	}
+	return *this;
 }
 
+FloatImage::~FloatImage()
+{
+	if (pixels)
+		delete pixels;
+}
+
+
+//change image size (the old one will remain in the top-left corner)
+void FloatImage::resize(unsigned int width, unsigned int height)
+{
+	float* new_pixels = new float[width*height];
+	unsigned int min_width = this->width > width ? width : this->width;
+	unsigned int min_height = this->height > height ? height : this->height;
+
+	for (unsigned int x = 0; x < min_width; ++x)
+		for (unsigned int y = 0; y < min_height; ++y)
+			new_pixels[y * width + x] = getPixel(x, y);
+
+	delete pixels;
+	this->width = width;
+	this->height = height;
+	pixels = new_pixels;
+}
 
 void Image::BresenhamLine(int x0, int y0, int x1, int y1, Color c) {
 	int dx, dy, d;
-	
+
 	dx = x1 - x0;
 	dy = y1 - y0;
 
@@ -288,7 +315,7 @@ void Image::BresenhamLine(int x0, int y0, int x1, int y1, Color c) {
 		dx1 = -1;
 		dx2 = -1;
 	}
-	 
+
 	if (dy > 0) dy1 = 1; else dy1 = -1;
 
 
@@ -355,36 +382,112 @@ void Image::EightOctantsCircleDraw(int x0, int y0, int x, int y, Color c, bool f
 		setPixel(-y + x0, x + y0, c);  //7th octant
 		setPixel(-x + x0, y + y0, c);  //8th octant
 	}
-} 
+}
 
-void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c, bool fill)
+void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c, bool fill, std::vector<sCelda>& table)
 {
 	if (!fill) {
 		BresenhamLine(x0, y0, x1, y1, c);
 		BresenhamLine(x1, y1, x2, y2, c);
 		BresenhamLine(x2, y2, x0, y0, c);
 	}
-	else {
+	else { //definim el max i min de cada columna
+		BresenhamwithTable(x0, y0, x1, y1, table);
+		BresenhamwithTable(x1, y1, x2, y2, table);
+		BresenhamwithTable(x2, y2, x0, y0, table);
+
+		for (int y = 0; y < this->height; y++)
+		{
+			if (table[y].maxx >= table[y].minx) {
+				for (int x = table[y].minx; x < table[y].maxx; x++) {
+					Color color = interColor(x0, y0, x1, y1, x2, y2, x, y, Color::RED, Color::GREEN, Color::BLUE);
+					setPixel(x, y, color);
+				}
+			}
+		}
+		for (int i = 0; i < table.size(); i++) {
+			table[i].minx = 100000;
+			table[i].maxx = -100000;
+		}
+
 	}
 }
 
 void Image::BresenhamwithTable(int x0, int y0, int x1, int y1, std::vector<sCelda>& table) {
-	//evaluar si el punt està tocant la línia del triangle
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-	int x; int y;
-	int L = (-x - x0) * dy + (y - y0) * dx;
-	for (int y = 0; y < this->height; y++) {
-		for (int x = 0; x < this->width; x++) {
-			{
-				if (L == 0) { // troba la línia
-					if (x < table[y].minx) { table[y].minx = x; }
-					if (x > table[y].maxx) { table[y].maxx = x; }
-				}
-			}
+	int dx, dy, d;
+
+	dx = x1 - x0;
+	dy = y1 - y0;
+
+	int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+
+	if (dx > 0) {
+		dx1 = 1;
+		dx2 = 1;
+	}
+	else {
+		dx1 = -1;
+		dx2 = -1;
+	}
+
+	if (dy > 0) dy1 = 1; else dy1 = -1;
+
+
+	int big = abs(dx);
+	int small = abs(dy);
+
+	if (big < small) {
+		big = abs(dy);
+		small = abs(dx);
+		if (dy < 0) dy2 = -1; else if (dy > 0) dy2 = 1;
+		dx2 = 0;
+	}
+	d = big / 2;
+	for (int i = 0; i <= big; i++) {
+		int x = x0; int y = y0;		//fem igual que a bersenhamLine però aquí anotem els 
+		if (y >= 0 && y < height) {
+			if (x < table[y].minx) table[y].minx = x;
+			if (x > table[y].maxx) table[y].maxx = x;
+		}
+		d += small;
+		if (d < big) {
+			x0 += dx2;
+			y0 += dy2;
+		}
+		else {
+			d -= big;
+			x0 += dx1;
+			y0 += dy1;
 		}
 	}
+
 }
+
+Color Image::interColor(int x0, int y0, int x1, int y1, int x2, int y2, int x, int y, Color c1, Color c2, Color c3)
+{
+	//assuming P0,P1 and P2 are the vertices 2D
+	Vector2 v0, v1, v2;
+	v0.x = x1 - x0; v0.y = y1 - y0;
+	v1.x = x2 - x0; v1.y = y2 - y0;
+	v2.x = x - x0; v2.y = y - y0; //P is the x,y of the pixel
+
+
+	//computing the dot of a vector with itself
+	//is the same as length*length but faster
+	float d00 = v0.dot(v0);
+	float d01 = v0.dot(v1);
+	float d11 = v1.dot(v1);
+	float d20 = v2.dot(v0);
+	float d21 = v2.dot(v1);
+	float denom = d00 * d11 - d01 * d01;
+	float v = (d11 * d20 - d01 * d21) / denom;
+	float w = (d00 * d21 - d01 * d20) / denom;
+	float u = 1.0 - v - w;
+
+
+	return Color(c1 * u + c2 * v + c3 * w);
+}
+
 #ifndef IGNORE_LAMBDAS
 
 //you can apply and algorithm for two images and store the result in the first one

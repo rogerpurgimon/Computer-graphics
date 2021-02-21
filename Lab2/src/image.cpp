@@ -271,58 +271,156 @@ int Image::sgn(int x)
 	}
 }
 
-
-void Image::BresenhamLine(int x0, int y0, int x1, int y1, Color c) {
-	int dx, dy, d;
-	
+void Image::BresenhamHoritzontalYpos(int x0, int y0, int x1, int y1, Color c) // 1r i 5è octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
 	dx = x1 - x0;
 	dy = y1 - y0;
+	inc_E = 2 * dy;
+	inc_NE = 2 * (dy - dx);
+	d = 2 * dy - dx;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);	
 
-	int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-
-	if (dx > 0) {
-		dx1 = 1;
-		dx2 = 1;
+	while (x < x1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			x = x + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x + 1;
+			y = y + 1;
+		}
+		setPixel(x, y, c);
 	}
-	else {
-		dx1 = -1;
-		dx2 = -1;
+}
+
+void Image::BresenhamHoritzontalYneg(int x0, int y0, int x1, int y1, Color c) // 8è i 4t octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	inc_E = 2 * -dy;
+	inc_NE = 2 * (-dy - dx);
+	d = 2 * -dy - dx;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);
+
+	while (x < x1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			x = x + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x + 1;
+			y = y - 1;
+		}
+		setPixel(x, y, c);
 	}
-	 
-	if (dy > 0) dy1 = 1; else dy1 = -1;
+}
 
+void Image::BresenhamVerticalXpos(int x0, int y0, int x1, int y1, Color c) //2n i 6è octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	inc_E = 2 * dx;
+	inc_NE = 2 * (dx - dy);
+	d = 2 * dx - dy;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);
 
-	int big = abs(dx);
-	int small = abs(dy);
-
-	if (big < small) {
-		big = abs(dy);
-		small = abs(dx);
-		if (dy < 0) dy2 = -1; else if (dy > 0) dy2 = 1;
-		dx2 = 0;
+	while (y < y1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			y = y + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x + 1;
+			y = y + 1;
+		}
+		setPixel(x, y, c);
 	}
-	d = big / 2;
-	for (int i = 0; i <= big; i++) {
-		setPixel(x0, y0, c);
-		d += small;
-		if (d < big) {
-			x0 += dx2;
-			y0 += dy2;
+}
+
+void Image::BresenhamVerticalXneg(int x0, int y0, int x1, int y1, Color c) //3r i 7è octant
+{
+	int dx, dy, inc_E, inc_NE, d, x, y;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	inc_E = 2 * -dx;
+	inc_NE = 2 * (-dx - dy);
+	d = 2 * -dx - dy;
+	x = x0;
+	y = y0;
+	setPixel(x, y, c);
+
+	while (y < y1)
+	{
+		if (d <= 0) { //Choose E
+			d = d + inc_E;
+			y = y + 1;
+		}
+		else { //Choose NE
+			d = d + inc_NE;
+			x = x - 1;
+			y = y + 1;
+		}
+		setPixel(x, y, c);
+	}
+}
+
+void Image::Bresenham(int x0, int y0, int x1, int y1, Color c)
+{
+	if (abs(y1 - y0) < abs(x1 - x0)) //octants horitzontals(1,4,5,8)
+	{
+		if (x0 <= x1 && y0 <= y1) { 
+			BresenhamHoritzontalYpos(x0, y0, x1, y1, c); //1r octant
+		}
+		else if (x0 > x1 && y0 > y1) { 
+			BresenhamHoritzontalYpos(x1, y1, x0, y0, c); //5è octant
+		}
+		else if (x0 <= x1 && y0 > y1) {
+			BresenhamHoritzontalYneg(x0, y0, x1, y1, c); //8è octant
 		}
 		else {
-			d -= big;
-			x0 += dx1;
-			y0 += dy1;
+			BresenhamHoritzontalYneg(x1, y1, x0, y0, c); //4t octant
+		}
+		
+	}
+	else {
+		if (x0 <= x1 && y0 <= y1) {
+			BresenhamVerticalXpos(x0, y0, x1, y1, c); //2n octant
+		}
+		else if (x0 > x1 && y0 > y1) {
+			BresenhamVerticalXpos(x1, y1, x0, y0, c); //6è octant
+		}
+		else if (x0 <= x1 && y0 > y1) {
+			BresenhamVerticalXneg(x1, y1, x0, y0, c); //7è octant
+		}
+		else {
+			BresenhamVerticalXneg(x0, y0, x1, y1, c); //3r octant
 		}
 	}
 }
 
-void Image::BresenhamCircle(int x0, int y0, int radius, Color c, bool fill) {
+
+
+void Image::BresenhamCircle(int x0, int y0, int radius, Color c) {
 	int x, y; int v;
 	x = 0;
 	y = radius;
 	v = 1 - radius;
-	EightOctantsCircleDraw(x0, y0, x, y, c, fill);
+	EightOctantsCircleDraw(x0, y0, x, y, c);
 	while (y > x) {
 		if (v < 0) {
 			v = v + 2 * x + 3;
@@ -333,58 +431,24 @@ void Image::BresenhamCircle(int x0, int y0, int radius, Color c, bool fill) {
 			x++;
 			y--;
 		}
-		EightOctantsCircleDraw(x0, y0, x, y, c, fill);
+		EightOctantsCircleDraw(x0, y0, x, y, c);
 	}
 }
 
 //Function to draw all 8 octants of the circle without changing the function of the circle
-void Image::EightOctantsCircleDraw(int x0, int y0, int x, int y, Color c, bool fill) {
-	if (fill) {
-		BresenhamLine(-x + x0, y + y0, x + x0, y + y0, c);   //line from 8th to 1st octant
-		BresenhamLine(-y + x0, x + y0, y + x0, x + y0, c);   //line from 7th to 2nd octant
-		BresenhamLine(-y + x0, -x + y0, y + x0, -x + y0, c); //line from 6th to 3rd octant
-		BresenhamLine(-x + x0, -y + y0, x + x0, -y + y0, c);   //line from 5th to 4th octant
-	}
-	else {
-		setPixel(x + x0, y + y0, c);   //1st octant     
-		setPixel(y + x0, x + y0, c);   //2nd octant
-		setPixel(y + x0, -x + y0, c);  //3rd octant
-		setPixel(x + x0, -y + y0, c);  //4th octant
-		setPixel(-x + x0, -y + y0, c); //5th octant
-		setPixel(-y + x0, -x + y0, c); //6th octant
-		setPixel(-y + x0, x + y0, c);  //7th octant
-		setPixel(-x + x0, y + y0, c);  //8th octant
-	}
-} 
-
-void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c, bool fill)
-{
-	if (!fill) {
-		BresenhamLine(x0, y0, x1, y1, c);
-		BresenhamLine(x1, y1, x2, y2, c);
-		BresenhamLine(x2, y2, x0, y0, c);
-	}
-	else {
-	}
+void Image::EightOctantsCircleDraw(int x0, int y0, int x, int y, Color c) {
+	setPixel(x + x0, y + y0, c); //1st octant
+	setPixel(y + x0, x + y0, c); //2nd octant
+	setPixel(y + x0, -x + y0, c); //3rd octant
+	setPixel(x + x0, -y + y0, c); //4th octant
+	setPixel(-x + x0, -y + y0, c); //5th octant
+	setPixel(-y + x0, -x + y0, c); //6th octant
+	setPixel(-y + x0, x + y0, c); //7th octant
+	setPixel(-x + x0, y + y0, c); //8th octant
 }
 
-void Image::BresenhamwithTable(int x0, int y0, int x1, int y1, std::vector<sCelda>& table) {
-	//evaluar si el punt està tocant la línia del triangle
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-	int x; int y;
-	int L = (-x - x0) * dy + (y - y0) * dx;
-	for (int y = 0; y < this->height; y++) {
-		for (int x = 0; x < this->width; x++) {
-			{
-				if (L == 0) { // troba la línia
-					if (x < table[y].minx) { table[y].minx = x; }
-					if (x > table[y].maxx) { table[y].maxx = x; }
-				}
-			}
-		}
-	}
-}
+
+
 #ifndef IGNORE_LAMBDAS
 
 //you can apply and algorithm for two images and store the result in the first one
