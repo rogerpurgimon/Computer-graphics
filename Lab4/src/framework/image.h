@@ -13,10 +13,10 @@
 #include "framework.h"
 
 //remove unsafe warnings
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4996)
-
-class FloatImage;
+#endif
 
 //Class Image: to store a matrix of pixels
 class Image
@@ -54,8 +54,8 @@ public:
 	}
 
 	//set the pixel at position x,y with value C
-	inline void setPixel(unsigned int x, unsigned int y, const Color& c) { pixels[ y * width + x ] = c; }
-	inline void setPixelSafe(unsigned int x, unsigned int y, const Color& c) const { x = clamp(x, 0, width-1); y = clamp(y, 0, height-1); pixels[ y * width + x ] = c; }
+	void setPixel(unsigned int x, unsigned int y, const Color& c) { pixels[ y * width + x ] = c; }
+	void setPixelSafe(unsigned int x, unsigned int y, const Color& c) const { if(x < 0 || x > width-1) return; if(y < 0 || y > height-1) return; pixels[ y * width + x ] = c; }
 
 	void resize(unsigned int width, unsigned int height);
 	void scale(unsigned int width, unsigned int height);
@@ -89,46 +89,7 @@ public:
 
 	#endif
 
-	struct sCelda { int minx; int maxx; };
-
-	void BresenhamLine(int x0, int y0, int x1, int y1, Color c);
-	void BresenhamCircle(int x0, int y0, int radius, Color c, bool fill);
-	void EightOctantsCircleDraw(int x0, int y0, int x, int y, Color c, bool fill);
-	void drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c1, Color c2, Color c3, bool fill, std::vector<sCelda>& table);
-	void BresenhamwithTable(int x0, int y0, int x1, int y1, std::vector<sCelda>& table);
-	Color interColor(int x0, int y0, int x1, int y1, int x2, int y2, int x, int y, Color c1, Color c2, Color c3);
 
 };
-
-//Image that stores one float per pixel instead of a Color, like a matrix, useful for a Depth Buffer
-class FloatImage
-{
-public:
-	unsigned int width;
-	unsigned int height;
-	float* pixels;
-
-	// CONSTRUCTORS 
-	FloatImage() { width = height = 0; pixels = NULL; }
-	FloatImage(unsigned int width, unsigned int height);
-	FloatImage(const FloatImage& c);
-	FloatImage& operator = (const FloatImage& c); //assign operator
-
-	//destructor
-	~FloatImage();
-
-	void fill(const float& v) { for(unsigned int pos = 0; pos < width*height; ++pos) pixels[pos] = v; }
-
-	//get the pixel at position x,y
-	float getPixel(unsigned int x, unsigned int y) const { return pixels[y * width + x]; }
-	float& getPixelRef(unsigned int x, unsigned int y) { return pixels[y * width + x]; }
-
-	//set the pixel at position x,y with value C
-	inline void setPixel(unsigned int x, unsigned int y, const float& v) { pixels[y * width + x] = v; }
-
-	void resize(unsigned int width, unsigned int height);
-};
-
-
 
 #endif

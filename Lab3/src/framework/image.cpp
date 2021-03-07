@@ -384,12 +384,12 @@ void Image::EightOctantsCircleDraw(int x0, int y0, int x, int y, Color c, bool f
 	}
 }
 
-void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c, bool fill, std::vector<sCelda>& table)
+void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c1, Color c2, Color c3, bool fill, std::vector<sCelda>& table)
 {
 	if (!fill) {
-		BresenhamLine(x0, y0, x1, y1, c);
-		BresenhamLine(x1, y1, x2, y2, c);
-		BresenhamLine(x2, y2, x0, y0, c);
+		BresenhamLine(x0, y0, x1, y1, c1);
+		BresenhamLine(x1, y1, x2, y2, c1);
+		BresenhamLine(x2, y2, x0, y0, c1);
 	}
 	else { //definim el max i min de cada columna
 		BresenhamwithTable(x0, y0, x1, y1, table);
@@ -400,7 +400,7 @@ void Image::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c
 		{
 			if (table[y].maxx >= table[y].minx) {
 				for (int x = table[y].minx; x < table[y].maxx; x++) {
-					Color color = interColor(x0, y0, x1, y1, x2, y2, x, y, Color::RED, Color::GREEN, Color::BLUE);
+					Color color = interColor(x0, y0, x1, y1, x2, y2, x, y, c1, c2, c3);
 					setPixel(x, y, color);
 				}
 			}

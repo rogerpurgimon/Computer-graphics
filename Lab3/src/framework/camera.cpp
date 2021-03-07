@@ -40,6 +40,7 @@ void Camera::updateViewMatrix()
 	view_matrix.M[1][0] = side.y; 	view_matrix.M[1][1] = top.y; view_matrix.M[1][2] = -front.y;  view_matrix.M[1][3] = 0.0;
 	view_matrix.M[2][0] = side.z; 	view_matrix.M[2][1] = top.z; view_matrix.M[2][2] = -front.z;  view_matrix.M[2][3] = 0.0;
 	view_matrix.M[3][0] = 0.0; 		view_matrix.M[3][1] = 0.0;	 view_matrix.M[3][2] = 0.0;		  view_matrix.M[3][3] = 1.0;
+	
 
 	//ADD ANY MATRIX POSTCOMPUTATIONS IF NECESSARY
 	view_matrix.traslateLocal(-eye.x, -eye.y, -eye.z);
@@ -54,8 +55,8 @@ void Camera::updateProjectionMatrix()
 	//Careful with using degrees in trigonometric functions, must be radians, and use float types in divisions
 
 	//ADD YOUR MATRIX PRECOMPUTATIONS HERE
-	fov = fov * PI / 180;
-	float f = 1 / tan(fov / 2);
+	float fov1 = fov * PI / 180;
+	float f = 1 / tan(fov1 / 2);
 
 	//CHANGE THE MATRIX VALUES USING YOUR OWN
 	//example projection:   fov: 60deg, aspect: 1.33333337, near_plane: 0.1, far_plane: 10000
