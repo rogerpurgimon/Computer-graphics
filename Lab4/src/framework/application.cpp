@@ -19,6 +19,7 @@ Shader* shader = NULL;
 Material* material = NULL;
 Light* light = NULL;
 Light* light2 = NULL;
+Light* light3 = NULL;
 Shader* phong_shader = NULL;
 Shader* gouraud_shader = NULL;
 
@@ -79,11 +80,19 @@ void Application::init(void)
 	//create a light (or several) and and some materials
 	light = new Light();
 	light2 = new Light();
-	light2->position.set(0, 50, 0);
+	light3 = new Light();
+	light2->position.set(-50, 100, 0);
 	light2->specular_color.set(0.6f, 0.0, 0.0);
-	material = new Material();
+	light2->diffuse_color.set(0.6f, 0.0, 0.0);
+	light3->position.set(-10, -50, 0);
+	light3->specular_color.set(0.2f, 0.8f, 0.0);
+	light3->diffuse_color.set(0.2f, 0.8f, 0.0);
 	lights.push_back(*light);
 	lights.push_back(*light2);
+	lights.push_back(*light3);
+
+	material = new Material();
+	
 
 }
 
@@ -201,15 +210,13 @@ void Application::render(void)
 		SDL_GL_SwapWindow(this->window);
 	}
 	else if (exercise == task3) {
+		
+		//choose a shader and enable it
+		phong_shader->enable();
 		for (int i = 0; i < lights.size(); i++) {
-			//choose a shader and enable it
-			phong_shader->enable();
-
-			//glDepthFunc(GL_LEQUAL);
-
 			Matrix44 model_matrix;
 			model_matrix.setIdentity();
-			model_matrix.translate(10, 0, 0); //example of translation
+			model_matrix.translate(0, 0, 0); //example of translation
 			model_matrix.rotate(angle, axis);
 			phong_shader->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 			phong_shader->setMatrix44("viewprojection", viewprojection); //upload viewprojection info to the shader
@@ -227,20 +234,21 @@ void Application::render(void)
 
 			phong_shader->setUniform3("u_Ia", ambient_light);
 			phong_shader->setUniform3("u_Id", lights[i].diffuse_color);
-			phong_shader->setUniform3("u_Is", light[i].specular_color);
+			phong_shader->setUniform3("u_Is", lights[i].specular_color);
 
-			
+
 			//do the draw call into the GPU
-			
-			//glDisable(GL_BLEND);
-			mesh->render(GL_TRIANGLES);
-
-			//disable shader when we do not need it any more
-			phong_shader->disable();
-
-			//swap between front buffer and back buffer
-			SDL_GL_SwapWindow(this->window);
+			glDepthFunc(GL_LEQUAL);
+			if (i == 0) { glDisable(GL_BLEND); mesh->render(GL_TRIANGLES); }
+			else { glEnable(GL_BLEND); glBlendFunc(GL_ONE, GL_ONE); mesh->render(GL_TRIANGLES); glDisable(GL_BLEND); }
 		}
+
+		//disable shader when we do not need it any more
+		phong_shader->disable();
+
+		//swap between front buffer and back buffer
+		SDL_GL_SwapWindow(this->window);
+		
 	}
 }
 
