@@ -17,18 +17,19 @@ Shader* shader = NULL;
 
 //might be useful...
 Material* material = NULL;
-Light* light = NULL;
+Light* light1 = NULL;
 Light* light2 = NULL;
 Light* light3 = NULL;
+//Light* aux_light = NULL;
 Shader* phong_shader = NULL;
 Shader* gouraud_shader = NULL;
 
 Vector3 ambient_light(0.1,0.2,0.3); //here we can store the global ambient light of the scene
 
-float angle = 0;
-Vector3 axis = Vector3(0, 1, 0);
+float anglex = 0;
+float angley = 0;
 
-enum Exercises { simple, gouraud, phong, task3, task4, task5, task6 };
+enum Exercises { simple, gouraud, phong, task3, task4, task6 };
 Exercises exercise = simple;
 
 Vector2 first_pos;
@@ -78,18 +79,20 @@ void Application::init(void)
 
 	//CODE HERE:
 	//create a light (or several) and and some materials
-	light = new Light();
+	light1 = new Light();
 	light2 = new Light();
 	light3 = new Light();
 	light2->position.set(-50, 100, 0);
 	light2->specular_color.set(0.6f, 0.0, 0.0);
 	light2->diffuse_color.set(0.6f, 0.0, 0.0);
-	light3->position.set(-10, -50, 0);
+	light3->position.set(-10, -50, -20);
 	light3->specular_color.set(0.2f, 0.8f, 0.0);
 	light3->diffuse_color.set(0.2f, 0.8f, 0.0);
-	lights.push_back(*light);
+	lights.push_back(*light1);
 	lights.push_back(*light2);
 	lights.push_back(*light3);
+	
+	//Light* aux_light = light1;
 
 	material = new Material();
 	
@@ -122,7 +125,8 @@ void Application::render(void)
 		Matrix44 model_matrix;
 		model_matrix.setIdentity();
 		model_matrix.translate(0, 0, 0); //example of translation
-		model_matrix.rotate(angle, axis);
+		model_matrix.rotate(anglex, Vector3(0,1,0));
+		model_matrix.rotate(angley, Vector3(-1,0,0));
 		shader->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 		shader->setMatrix44("viewprojection", viewprojection); //upload viewprojection info to the shader
 
@@ -146,7 +150,8 @@ void Application::render(void)
 		Matrix44 model_matrix;
 		model_matrix.setIdentity();
 		model_matrix.translate(0, 0, 0); //example of translation
-		model_matrix.rotate(angle, axis);
+		model_matrix.rotate(anglex, Vector3(0,1,0));
+		model_matrix.rotate(angley, Vector3(-1,0,0));
 		gouraud_shader->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 		gouraud_shader->setMatrix44("viewprojection", viewprojection); //upload viewprojection info to the shader
 
@@ -154,7 +159,7 @@ void Application::render(void)
 		//send the material and light uniforms to the shader
 
 		gouraud_shader->setUniform3("u_camera_pos", camera->eye);
-		gouraud_shader->setUniform3("u_light_pos", light->position);
+		gouraud_shader->setUniform3("u_light_pos", light1->position);
 	
 		gouraud_shader->setUniform3("u_Ka", material->ambient);
 		gouraud_shader->setUniform3("u_Kd", material->diffuse);
@@ -162,8 +167,8 @@ void Application::render(void)
 		gouraud_shader->setUniform1("u_alpha", material->shininess);
 
 		gouraud_shader->setUniform3("u_Ia", ambient_light);
-		gouraud_shader->setUniform3("u_Id", light->diffuse_color);
-		gouraud_shader->setUniform3("u_Is", light->specular_color);
+		gouraud_shader->setUniform3("u_Id", light1->diffuse_color);
+		gouraud_shader->setUniform3("u_Is", light1->specular_color);
 
 		//do the draw call into the GPU
 		mesh->render(GL_TRIANGLES);
@@ -181,7 +186,8 @@ void Application::render(void)
 		Matrix44 model_matrix;
 		model_matrix.setIdentity();
 		model_matrix.translate(0, 0, 0); //example of translation
-		model_matrix.rotate(angle, axis);
+		model_matrix.rotate(anglex, Vector3(0,1,0));
+		model_matrix.rotate(angley, Vector3(-1,0,0));
 		phong_shader->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 		phong_shader->setMatrix44("viewprojection", viewprojection); //upload viewprojection info to the shader
 
@@ -189,7 +195,7 @@ void Application::render(void)
 		//send the material and light uniforms to the shader
 
 		phong_shader->setUniform3("u_camera_pos", camera->eye);
-		phong_shader->setUniform3("u_light_pos", light->position);
+		phong_shader->setUniform3("u_light_pos", light1->position);
 
 		phong_shader->setUniform3("u_Ka", material->ambient);
 		phong_shader->setUniform3("u_Kd", material->diffuse);
@@ -197,8 +203,8 @@ void Application::render(void)
 		phong_shader->setUniform1("u_alpha", material->shininess);
 
 		phong_shader->setUniform3("u_Ia", ambient_light);
-		phong_shader->setUniform3("u_Id", light->diffuse_color);
-		phong_shader->setUniform3("u_Is", light->specular_color);
+		phong_shader->setUniform3("u_Id", light1->diffuse_color);
+		phong_shader->setUniform3("u_Is", light1->specular_color);
 
 		//do the draw call into the GPU
 		mesh->render(GL_TRIANGLES);
@@ -213,11 +219,13 @@ void Application::render(void)
 		
 		//choose a shader and enable it
 		phong_shader->enable();
+		
 		for (int i = 0; i < lights.size(); i++) {
 			Matrix44 model_matrix;
 			model_matrix.setIdentity();
 			model_matrix.translate(0, 0, 0); //example of translation
-			model_matrix.rotate(angle, axis);
+			model_matrix.rotate(anglex, Vector3(0,1,0));
+			model_matrix.rotate(angley, Vector3(-1,0,0));
 			phong_shader->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 			phong_shader->setMatrix44("viewprojection", viewprojection); //upload viewprojection info to the shader
 
@@ -250,37 +258,91 @@ void Application::render(void)
 		SDL_GL_SwapWindow(this->window);
 		
 	}
+	else if (exercise == task4) {
+		
+	//choose a shader and enable it
+	phong_shader->enable();
+	Matrix44 model_matrix;
+	
+	for (int j = 0; j < 7; j++) {
+		for (int i = 0; i < lights.size(); i++) {
+			model_matrix.setIdentity();
+			model_matrix.translate(20 * j, 0, 0); //example of translation
+			model_matrix.rotate(anglex-45, Vector3(0,1,0));
+			model_matrix.rotate(angley, Vector3(1,0,0));
+			phong_shader->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
+			phong_shader->setMatrix44("viewprojection", viewprojection); //upload viewprojection info to the shader
+
+
+			//CODE HERE: pass all the info needed by the shader to do the computations
+			//send the material and light uniforms to the shader
+
+			phong_shader->setUniform3("u_camera_pos", camera->eye);
+			phong_shader->setUniform3("u_light_pos", lights[i].position);
+
+			phong_shader->setUniform3("u_Ka", material->ambient);
+			phong_shader->setUniform3("u_Kd", material->diffuse);
+			phong_shader->setUniform3("u_Ks", material->specular);
+			phong_shader->setUniform1("u_alpha", material->shininess);
+
+			phong_shader->setUniform3("u_Ia", ambient_light);
+			phong_shader->setUniform3("u_Id", lights[i].diffuse_color);
+			phong_shader->setUniform3("u_Is", lights[i].specular_color);
+
+
+			//do the draw call into the GPU
+			glDepthFunc(GL_LEQUAL);
+			if (i == 0) { glDisable(GL_BLEND); mesh->render(GL_TRIANGLES); }
+			else { glEnable(GL_BLEND); glBlendFunc(GL_ONE, GL_ONE); mesh->render(GL_TRIANGLES); glDisable(GL_BLEND); }
+		}
+	}
+
+	//disable shader when we do not need it any more
+	phong_shader->disable();
+
+	//swap between front buffer and back buffer
+	SDL_GL_SwapWindow(this->window);
+
+	}
 }
 
 //called after render
 void Application::update(double seconds_elapsed)
 {
-	if (keystate[SDL_SCANCODE_SPACE]) { angle += seconds_elapsed; }
 	
 	d = mouse_position - first_pos;
-	int distance = sqrt(pow(d.x, 2) + pow(d.y, 2));
 	if (left_click) {
-		if (distance) {
-			angle += seconds_elapsed * distance;
-			if (abs(d.x) > abs(d.y) && d.x > 0) { axis.set(0, -1, 0); } //provisional, s'ha de canviar
-			if (abs(d.y) > abs(d.x) && d.y > 0) { axis.set(-1, 0, 0); } //
-			if (abs(d.x) > abs(d.y) && d.x < 0) { axis.set(0, 1, 0); } //
-			if (abs(d.y) > abs(d.x) && d.y < 0) { axis.set(1, 0, 0); } //
+		if (d.x != 0 && d.y != 0) {
+			anglex += seconds_elapsed * -d.x;
+			angley += seconds_elapsed * d.y;
 			first_pos = mouse_position;
 		}
 	}
+	
+	/*if (keystate[SDL_SCANCODE_SPACE]) { 
+		if (aux_light == light1) { *aux_light = *light2; }
+		else if (aux_light == light2) { *aux_light = *light3; }
+		else if (aux_light == light3) { *aux_light = *light1; }
+	}*/
+	
 
 	if (keystate[SDL_SCANCODE_RIGHT])
-		camera->eye = camera->eye + Vector3(1, 0, 0) * seconds_elapsed * 10.0;
+		light1->position = light1->position + Vector3(1, 0, 0) * seconds_elapsed * 10.0;
 	else if (keystate[SDL_SCANCODE_LEFT])
-		camera->eye = camera->eye + Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
+		light1->position = light1->position + Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
 	if (keystate[SDL_SCANCODE_UP])
-		camera->eye = camera->eye + Vector3(0, 1, 0) * seconds_elapsed * 10.0;
+		light1->position = light1->position + Vector3(0, 1, 0) * seconds_elapsed * 10.0;
 	else if (keystate[SDL_SCANCODE_DOWN])
-		camera->eye = camera->eye + Vector3(0, -1, 0) * seconds_elapsed * 10.0;
+		light1->position = light1->position + Vector3(0, -1, 0) * seconds_elapsed * 10.0;
 
-	if (keystate[SDL_SCANCODE_F]){ camera->fov += 10 * seconds_elapsed; }
-	if (keystate[SDL_SCANCODE_G]) { camera->fov -= 10 * seconds_elapsed; }
+	if (keystate[SDL_SCANCODE_F]){ camera->fov += 20 * seconds_elapsed; }
+	if (keystate[SDL_SCANCODE_G]) { camera->fov -= 20 * seconds_elapsed; }
+
+	if (keystate[SDL_SCANCODE_W]) { camera->center.y += 5 * seconds_elapsed; }
+	if (keystate[SDL_SCANCODE_A]) { camera->center.x -= 5 * seconds_elapsed; }
+	if (keystate[SDL_SCANCODE_S]) { camera->center.y -= 5 * seconds_elapsed; }
+	if (keystate[SDL_SCANCODE_D]) { camera->center.x += 5 * seconds_elapsed; }
+
 }
 
 
@@ -296,8 +358,7 @@ void Application::onKeyPressed( SDL_KeyboardEvent event )
 		case SDLK_1: exercise = gouraud; std::cout << "\n\nTASK 1: Gouraud" << std::endl; break;
 		case SDLK_2: exercise = phong; std::cout << "\n\nTASK 2: Phong" << std::endl; break;
 		case SDLK_3: exercise = task3; std::cout << "\n\nTASK 3: Adding multiple lights using multiple passes Phong" << std::endl; break;
-		//case SDLK_4: exercise = task4; break;
-		//case SDLK_5: exercise = task5; break;
+		case SDLK_4: exercise = task4; std::cout << "\n\nTASK 4: Render the same mesh several times in the scene in different locations" << std::endl; break;
 		//case SDLK_6: exercise = task6; break;
 
 	}

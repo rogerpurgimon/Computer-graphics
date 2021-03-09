@@ -19,9 +19,11 @@ public:
 
 	float time;
 
+	//
+	std::vector<Light>lights;
+
 	//keyboard state
 	const Uint8* keystate;
-	std::vector<Light>lights;
 
 	//mouse state
 	int mouse_state; //tells which buttons are pressed
