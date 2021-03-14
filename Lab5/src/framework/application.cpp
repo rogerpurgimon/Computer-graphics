@@ -203,7 +203,8 @@ void Application::render(void)
 		phong3_shader->setMatrix44("model", model_matrix); //upload info to the shader
 		phong3_shader->setMatrix44("viewprojection", viewprojection); //upload info to the shader
 
-		phong3_shader->setTexture("u_texture", normalmap_texture, 0); //set texture in slot 0
+		phong3_shader->setTexture("u_texture", texture, 0); //set texture in slot 0
+		phong3_shader->setTexture("u_normalmap", normalmap_texture, 1); //set texture in slot 1
 		for (int i = 0; i < lights.size(); i++) {
 			phong3_shader->setUniform3("u_camera_pos", camera->eye);
 			phong3_shader->setUniform3("u_light_pos", lights[i].position);

@@ -8,6 +8,7 @@ varying vec2 v_coord;
 uniform vec3 u_camera_pos;
 uniform vec3 u_light_pos;
 uniform sampler2D u_texture;
+uniform sampler2D u_normalmap;
 
 uniform vec3 u_Ka;
 uniform vec3 u_Kd;
@@ -27,13 +28,13 @@ void main()
 	//for GOURAUD you dont need to do anything here, just pass the color from the vertex shader
 	vec4 texcol = texture2D( u_texture, v_coord );
 
-	vec4 normal = normalize(texcol.xyz * 2.0 - 1.0);
+	vec3 normal = texture2D( u_normalmap, v_coord ).xyz;
 
-	vec4 pixel_n = clamp(normal,0.0,1.0);
+	normal = normalize(normal*2 - 1);
 
 	vec3 L = normalize(u_light_pos - v_wPos);
 
-	vec3 R = -reflect(L, v_wNormal);
+	vec3 R = -reflect(L, normal);
 
 	vec3 V = normalize(u_camera_pos - v_wPos);
 
@@ -41,9 +42,9 @@ void main()
 	//u_Kd = texcol.xyz;
 	//u_Ks = texcol.xyz;
 
-	vec3 La = pixel_n * u_Ia;
-	vec3 Ld = pixel_n * u_Id * max(dot(L,v_wNormal),0.0);
-	vec3 Ls = pixel_n * u_Is * pow(max(dot(R,V),0.0),u_alpha) * texcol.w;
+	vec3 La = texcol.xyz * u_Ia;
+	vec3 Ld = texcol.xyz * u_Id * max(dot(L,normal),0.0);
+	vec3 Ls = texcol.xyz * u_Is * pow(max(dot(R,V),0.0),u_alpha) * texcol.w;
 
 	color = La+Ld+Ls;
 
