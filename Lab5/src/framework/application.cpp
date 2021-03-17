@@ -15,12 +15,15 @@ Shader* shader = NULL;
 Shader* phong1_shader = NULL;
 Shader* phong2_shader = NULL;
 Shader* phong3_shader = NULL;
+Shader* phong4_shader = NULL;
 Texture* texture = NULL;
 Texture* normalmap_texture = NULL;
 Light* light1 = NULL;
 Light* light2 = NULL;
 Light* light3 = NULL;
-Material* material = NULL;
+Material* material1 = NULL;
+Material* material2 = NULL;
+Material* material3 = NULL;
 
 Vector3 ambient_light(60/255, 60/255, 60/255); //here we can store the global ambient light of the scene
 
@@ -32,7 +35,7 @@ bool left_click = false;
 Vector2 d;
 int num_light = 1;
 
-enum Exercises { simple, task1, task2, task3, task4, task6 };
+enum Exercises { simple, task1, task2, task3, task4};
 Exercises exercise = simple;
 
 
@@ -84,20 +87,42 @@ void Application::init(void)
 	phong1_shader = Shader::Get("../res/shaders/phong_v.vs", "../res/shaders/phong_f1.fs");
 	phong2_shader = Shader::Get("../res/shaders/phong_v.vs", "../res/shaders/phong_f2.fs");
 	phong3_shader = Shader::Get("../res/shaders/phong_v.vs", "../res/shaders/phong_f3.fs");
+	phong4_shader = Shader::Get("../res/shaders/phong_v.vs", "../res/shaders/phong_f4.fs");
 
 	//load whatever you need here
 	light1 = new Light();
 	light1->position.set(20, 20, 10);
 	light1->diffuse_color.set(1.0f, 1.0f, 1.0f);
 	light1->specular_color.set(1.0f, 1.0f, 1.0f);
+	
 	light2 = new Light();
-	material = new Material();
 	light2->position.set(-5, 0, -5);
 	light2->diffuse_color.set(0.2f, 0.25f, 0.5f);
 	light2->specular_color.set(0.2f, 0.25f, 0.5f);
+
 	light3 = new Light();
 	lights.push_back(*light1);
 	lights.push_back(*light2);
+
+	material1 = new Material();
+	material1->ambient.set(0.6f, 0.4f, 0);
+	material1->diffuse.set(0.6f, 0.4f, 0);
+	material1->specular.set(0.6f, 0.4f, 0);
+
+	material2 = new Material();
+	material2->ambient.set(0.3f, 0, 0);
+	material2->diffuse.set(0.3f, 0, 0);
+	material2->specular.set(0.3f, 0, 0);
+
+	material3 = new Material();
+	material3->ambient.set(0, 0.4f, 0.3f);
+	material3->diffuse.set(0, 0.4f, 0.3f);
+	material3->specular.set(0, 0.4f, 0.3f);
+	
+	materials.push_back(*material1);
+	materials.push_back(*material2);
+	materials.push_back(*material3);
+
 }
 
 //render one frame
@@ -150,10 +175,10 @@ void Application::render(void)
 			phong1_shader->setUniform3("u_camera_pos", camera->eye);
 			phong1_shader->setUniform3("u_light_pos", lights[i].position);
 
-			phong1_shader->setUniform3("u_Ka", material->ambient);
-			phong1_shader->setUniform3("u_Kd", material->diffuse);
-			phong1_shader->setUniform3("u_Ks", material->specular);
-			phong1_shader->setUniform1("u_alpha", material->shininess);
+			phong1_shader->setUniform3("u_Ka", material1->ambient);
+			phong1_shader->setUniform3("u_Kd", material1->diffuse);
+			phong1_shader->setUniform3("u_Ks", material1->specular);
+			phong1_shader->setUniform1("u_alpha", material1->shininess);
 
 			phong1_shader->setUniform3("u_Ia", ambient_light);
 			phong1_shader->setUniform3("u_Id", lights[i].diffuse_color);
@@ -185,10 +210,10 @@ void Application::render(void)
 			phong2_shader->setUniform3("u_camera_pos", camera->eye);
 			phong2_shader->setUniform3("u_light_pos", lights[i].position);
 
-			phong2_shader->setUniform3("u_Ka", material->ambient);
-			phong2_shader->setUniform3("u_Kd", material->diffuse);
-			phong2_shader->setUniform3("u_Ks", material->specular);
-			phong2_shader->setUniform1("u_alpha", material->shininess);
+			phong2_shader->setUniform3("u_Ka", material1->ambient);
+			phong2_shader->setUniform3("u_Kd", material1->diffuse);
+			phong2_shader->setUniform3("u_Ks", material1->specular);
+			phong2_shader->setUniform1("u_alpha", material1->shininess);
 
 			phong2_shader->setUniform3("u_Ia", ambient_light);
 			phong2_shader->setUniform3("u_Id", lights[i].diffuse_color);
@@ -221,10 +246,10 @@ void Application::render(void)
 			phong3_shader->setUniform3("u_camera_pos", camera->eye);
 			phong3_shader->setUniform3("u_light_pos", lights[i].position);
 
-			phong3_shader->setUniform3("u_Ka", material->ambient);
-			phong3_shader->setUniform3("u_Kd", material->diffuse);
-			phong3_shader->setUniform3("u_Ks", material->specular);
-			phong3_shader->setUniform1("u_alpha", material->shininess);
+			phong3_shader->setUniform3("u_Ka", material1->ambient);
+			phong3_shader->setUniform3("u_Kd", material1->diffuse);
+			phong3_shader->setUniform3("u_Ks", material1->specular);
+			phong3_shader->setUniform1("u_alpha", material1->shininess);
 
 			phong3_shader->setUniform3("u_Ia", ambient_light);
 			phong3_shader->setUniform3("u_Id", lights[i].diffuse_color);
@@ -240,7 +265,44 @@ void Application::render(void)
 		//swap between front buffer and back buffer
 		SDL_GL_SwapWindow(this->window);
 	}
+	else if (exercise == task4) {
+	//enable the shader
+	phong4_shader->enable();
+	for (int j = 0; j < materials.size(); j++) {
+		for (int i = 0; i < lights.size(); i++) {
+			model_matrix.setIdentity();
+			model_matrix.translate(j*20, 0, 0);
+			model_matrix.rotate(anglex, Vector3(0, 1, 0));
+			model_matrix.rotate(angley, Vector3(1, 0, 0));
+			phong4_shader->setMatrix44("model", model_matrix); //upload info to the shader
+			phong4_shader->setMatrix44("viewprojection", viewprojection); //upload info to the shader
 
+			phong4_shader->setTexture("u_texture", texture, 0); //set texture in slot 0
+			phong4_shader->setTexture("u_normalmap", normalmap_texture, 1); //set texture in slot 1
+
+			phong4_shader->setUniform3("u_camera_pos", camera->eye);
+			phong4_shader->setUniform3("u_light_pos", lights[i].position);
+
+			phong4_shader->setUniform3("u_Ka", materials[j].ambient);
+			phong4_shader->setUniform3("u_Kd", materials[j].diffuse);
+			phong4_shader->setUniform3("u_Ks", materials[j].specular);
+			phong4_shader->setUniform1("u_alpha", materials[j].shininess);
+
+			phong4_shader->setUniform3("u_Ia", ambient_light);
+			phong4_shader->setUniform3("u_Id", lights[i].diffuse_color);
+			phong4_shader->setUniform3("u_Is", lights[i].specular_color);
+
+			glDepthFunc(GL_LEQUAL);
+			if (i == 0) { glDisable(GL_BLEND); mesh->render(GL_TRIANGLES); }
+			else { glEnable(GL_BLEND); glBlendFunc(GL_ONE, GL_ONE); mesh->render(GL_TRIANGLES); glDisable(GL_BLEND); }
+		}
+	}
+	//disable shader
+	phong4_shader->disable();
+
+	//swap between front buffer and back buffer
+	SDL_GL_SwapWindow(this->window);
+	}
 }
 
 //called after render
@@ -257,67 +319,7 @@ void Application::update(double seconds_elapsed)
 		}
 	}
 
-	if (keystate[SDL_SCANCODE_RIGHT]) {
-		if (exercise == 1 || exercise == 2) light1->position = light1->position + Vector3(1, 0, 0) * seconds_elapsed * 10.0;
-		else {
-			switch (num_light) {
-			case 1:
-				lights[0].position = lights[0].position + Vector3(1, 0, 0) * seconds_elapsed * 10.0;
-				lights[1].position = lights[1].position - Vector3(1, 0, 0) * seconds_elapsed * 10.0;
-			case 2:
-				lights[1].position = lights[1].position + Vector3(1, 0, 0) * seconds_elapsed * 10.0;
-				lights[2].position = lights[2].position - Vector3(1, 0, 0) * seconds_elapsed * 10.0;
-			case 3:
-				lights[2].position = lights[2].position + Vector3(1, 0, 0) * seconds_elapsed * 10.0;
-			}
-		}
-	}
-	else if (keystate[SDL_SCANCODE_LEFT]) {
-		if (exercise == 1 || exercise == 2) light1->position = light1->position + Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
-		else {
-			switch (num_light) {
-			case 1:
-				lights[0].position = lights[0].position + Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
-				lights[1].position = lights[1].position - Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
-			case 2:
-				lights[1].position = lights[1].position + Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
-				lights[2].position = lights[2].position - Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
 
-			case 3:
-				lights[2].position = lights[2].position + Vector3(-1, 0, 0) * seconds_elapsed * 10.0;
-			}
-		}
-	}
-	if (keystate[SDL_SCANCODE_UP]) {
-		if (exercise == 1 || exercise == 2) light1->position = light1->position + Vector3(0, 1, 0) * seconds_elapsed * 10.0;
-		else {
-			switch (num_light) {
-			case 1:
-				lights[0].position = lights[0].position + Vector3(0, 1, 0) * seconds_elapsed * 10.0;
-				lights[1].position = lights[1].position - Vector3(0, 1, 0) * seconds_elapsed * 10.0;
-			case 2:
-				lights[1].position = lights[1].position + Vector3(0, 1, 0) * seconds_elapsed * 10.0;
-				lights[2].position = lights[2].position - Vector3(0, 1, 0) * seconds_elapsed * 10.0;
-			case 3:
-				lights[2].position = lights[2].position + Vector3(0, 1, 0) * seconds_elapsed * 10.0;
-			}
-		}
-	}
-	else if (keystate[SDL_SCANCODE_DOWN]) {
-		if (exercise == 1 || exercise == 2) light1->position = light1->position + Vector3(0, -1, 0) * seconds_elapsed * 10.0;
-		else {
-			switch (num_light) {
-			case 1:
-				lights[0].position = lights[0].position + Vector3(0, -1, 0) * seconds_elapsed * 10.0;
-				lights[1].position = lights[1].position - Vector3(0, -1, 0) * seconds_elapsed * 10.0;
-			case 2:
-				lights[1].position = lights[1].position + Vector3(0, -1, 0) * seconds_elapsed * 10.0;
-				lights[2].position = lights[2].position - Vector3(0, -1, 0) * seconds_elapsed * 10.0;
-			case 3:
-				lights[2].position = lights[2].position + Vector3(0, -1, 0) * seconds_elapsed * 10.0;
-			}
-		}
-	}
 
 	if (keystate[SDL_SCANCODE_F]) { camera->fov += 20 * seconds_elapsed; }
 	if (keystate[SDL_SCANCODE_G]) { camera->fov -= 20 * seconds_elapsed; }
@@ -337,6 +339,7 @@ void Application::onKeyPressed( SDL_KeyboardEvent event )
 		case SDL_SCANCODE_1: exercise = task1; std::cout << "\n\nTASK 1" << std::endl; break;
 		case SDL_SCANCODE_2: exercise = task2; std::cout << "\n\nTASK 2" << std::endl; break;
 		case SDL_SCANCODE_3: exercise = task3; std::cout << "\n\nTASK 3" << std::endl; break;
+		case SDL_SCANCODE_4: exercise = task4; std::cout << "\n\nTASK 4" << std::endl; break;
         case SDL_SCANCODE_ESCAPE: exit(0); break; //ESC key, kill the app
 		case SDL_SCANCODE_X: {
 			if (num_light == 1) { num_light = 2; }

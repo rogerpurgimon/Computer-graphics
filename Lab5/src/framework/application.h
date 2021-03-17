@@ -8,6 +8,7 @@
 #include "includes.h"
 #include "framework.h"
 #include "light.h"
+#include "material.h"
 
 class Application
 {
@@ -21,6 +22,7 @@ public:
 
 	//
 	std::vector<Light>lights;
+	std::vector<Material>materials;
 
 	//keyboard state
 	const Uint8* keystate;
