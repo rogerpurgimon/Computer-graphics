@@ -39,9 +39,9 @@ void main()
 	vec3 V = normalize(u_camera_pos - v_wPos);
 
 
-	vec3 La = u_Ka * u_Ia;
-	vec3 Ld = u_Kd * u_Id * max(dot(L,normal),0.0);
-	vec3 Ls = u_Ks * u_Is * pow(max(dot(R,V),0.0),u_alpha) * texcol.w;
+	vec3 La = (texcol.xyz * u_Ka) * u_Ia;
+	vec3 Ld = (texcol.xyz * u_Kd) * u_Id * max(dot(L,normal),0.0);
+	vec3 Ls = (texcol.xyz * u_Ks) * u_Is * pow(max(dot(R,V),0.0),u_alpha) * texcol.w;
 
 	color = La+Ld+Ls;
 
